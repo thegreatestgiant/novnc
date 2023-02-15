@@ -1,0 +1,64 @@
+name: Visualize matrix build Nektos
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_url:
+        description: Image URL
+        required: true
+        default: matrix-finished.png
+      reset_image_url:
+        description: Reset Image URL
+        required: true
+        default: matrix-start.png
+      duration:
+        description: 'Number of job duration in ms'
+        required: true
+        default: '1000'
+      environment:
+        description: 'environment'
+        required: true
+        default: 'foobar'
+      redis_host:
+        description: 'REDIS HOST'
+        required: true
+        default: '35.245.139.140'
+jobs:
+  reset-matrix-redis:
+    name: "Reset Matrix Redis"
+    runs-on: ${{ github.event.inputs.environment }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: Reset image
+        env:
+          REDIS_PASSWORD: ${{secrets.REDIS_PASSWORD}}
+          REDIS_HOST: ${{ github.event.inputs.redis_host }}
+        run: |
+          python3 publish-pixels.py --max-x=800 --max-y=600 --job-x=0 --job-y=0 --image-file='${{ github.event.inputs.reset_image_url }}' --redis-host="$REDIS_HOST" --environment='${{github.event.inputs.environment}}'
+        working-directory: ./images
+
+  matrix:
+    name: "Matrix job"
+    runs-on: ${{ github.event.inputs.environment }}
+    needs: [reset-matrix-redis]
+
+    strategy:
+      fail-fast: false
+      matrix:
+          x: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+          y: [1,2,3,4,5,6,7,8,9,10,11,12]
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: Perform job
+        env:
+          REDIS_PASSWORD: ${{secrets.REDIS_PASSWORD}}
+          REDIS_HOST: ${{ github.event.inputs.redis_host }}
+        run: |
+          sleep $((RANDOM%5+5))
+          python3 visualize-matrix-build.py --max-x=800 --max-y=600 --job-x='${{matrix.x}}' --job-y='${{matrix.y}}' --max-job-x='${{github.event.inputs.x}}' --max-job-y='${{github.event.inputs.y}}' --duration='${{github.event.inputs.duration}}' --environment='${{github.event.inputs.environment}}' --image-file='${{ github.event.inputs.image_url }}' --redis-host="$REDIS_HOST"
+        working-directory: ./images

@@ -1,0 +1,38 @@
+name: Connect to GCP
+
+on:
+  workflow_dispatch:
+
+jobs:
+  connect-to-gcp:
+    name: "Connect to GCP"
+    runs-on: ubuntu-latest
+    steps:
+      #- uses: actions/setup-python@v2
+      #  with:
+      #    python-version: '3.x' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+      #    architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        with:
+          project_id: ${{ secrets.PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+
+      - id: get-credentials
+        uses: google-github-actions/get-gke-credentials@main
+        with:
+          cluster_name: ${{secrets.CLUSTER_NAME}}
+          location: ${{secrets.CLUSTER_LOCATION}}
+
+      - id: install-tools-gcp
+        name: "Install kubectl"
+        run: gcloud -q components install kubectl
+
+      - name: Show cluster nodes
+        run: kubectl get nodes
+
+      - name: Show how to use kubernetes config locally
+        run: |
+          echo "To connect to cluster via kubectl run the following command: "
+          echo "export KUBECONFIG=$KUBECONFIG"

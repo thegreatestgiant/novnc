@@ -1,0 +1,66 @@
+name: Matrix Build Hosted Runner
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_url:
+        description: Image URL
+        required: true
+        default: "images/matrix-finished.png"
+      duration:
+        description: 'Number of job duration in ms'
+        required: true
+        default: '500'
+      x:
+        description: 'Number of cells on x-Axis'
+        required: true
+        default: '16'
+      y:
+        description: 'Number of cells on y-Axis'
+        required: true
+        default: '12'
+      pixel-x:
+        description: 'Number of pixels on x-Axis'
+        required: true
+        default: '800'
+      pixel-y:
+        description: 'Number of pixels on y-Axis'
+        required: true
+        default: '600'
+      repetitions:
+        description: 'Number of matrix cell render cycles'
+        required: true
+        default: '1'
+      repetition-delay:
+        description: 'Wait time in ms between render cycles'
+        required: true
+        default: '30000'
+      connections-per-cell:
+        description: 'DB connections per matrix cell'
+        required: true
+        default: '1'
+
+jobs:
+
+  enter-matrix:
+    name: "Render Matrix Cell"
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/jonico/actions-runner:ps
+      options: --user root
+
+    strategy:
+      fail-fast: false
+      #max-parallel: 16
+      matrix:
+        x: [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
+        y: [1,2,3,4,5,6,7,8,9,10,11,12]
+        
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: Stream pixels into PlanetScale DB
+        env:
+          DATABASE_URL: ${{secrets.DATABASE_URL}}
+        run: python3 render-matrix-cell.py --max-x='${{github.event.inputs.pixel-x}}' --max-y='${{github.event.inputs.pixel-y}}' --job-x='${{matrix.x}}' --job-y='${{matrix.y}}' --max-job-x='${{github.event.inputs.x}}' --max-job-y='${{github.event.inputs.y}}' --duration='${{github.event.inputs.duration}}' --environment='${{github.actor}}' --image-file='${{ github.event.inputs.image_url }}' --repetitions '${{github.event.inputs.repetitions}}' --connections '${{github.event.inputs.connections-per-cell}}' --repetition-delay '${{github.event.inputs.repetition-delay}}'

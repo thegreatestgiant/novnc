@@ -1,0 +1,26 @@
+name: Stream pixels
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment'
+        required: true
+        default: 'foobar'
+
+jobs:
+  stream-pixels:
+    name: "Stream pixels sent to Redis to LED matrix"
+    runs-on: [ raspberry-pi-3b ]
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: Stream pixels
+        env:
+          ENVIRONMENT: ${{ github.event.inputs.environment }}
+          REDIS_PASSWORD: ${{secrets.REDIS_PASSWORD}}
+        run: |
+          # kubectl port-forward --namespace redis svc/redis-master 6379:6379 &
+          # sleep 10
+          python3 stream-pixels.py --led-rows=32 --led-cols=64 --led-brightness=40 --max-x=64 --max-y=32 --sleep-interval=100 --environment ${{ github.event.inputs.environment }} --redis-host=35.245.139.140

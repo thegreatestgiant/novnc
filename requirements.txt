@@ -1,0 +1,4 @@
+redis
+PySimpleGUI
+pillow
+PyMySQL

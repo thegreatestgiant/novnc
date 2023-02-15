@@ -1,0 +1,13 @@
+{  
+  "inputs": {
+    "image_url": "images/matrix-finished.png",
+    "pixel-x": "800",
+    "pixel-y": "600",
+    "x": "16",
+    "y": "12",
+    "repetitions": "1",
+    "repetition-delay": "5000",
+    "duration": "500",
+    "connections-per-cell": "1"
+  }
+}

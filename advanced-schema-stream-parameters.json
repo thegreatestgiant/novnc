@@ -1,0 +1,14 @@
+{  
+  "inputs": {
+    "image_url": "images/non-blocking-schema-change-text.png",
+    "reset_image_url" : "images/ps-start.png",
+    "pixel-x": "800",
+    "pixel-y": "600",
+    "x": "16",
+    "y": "12",
+    "repetitions": "2",
+    "repetition-delay": "60000",
+    "duration": "1000",
+    "connections-per-cell": "10"
+  }
+}

@@ -1,0 +1,1 @@
+ python3 show-node-allocation-gui.py --length=4 --height=4 --max-x=64 --max-y=28 --window-x=1350 --window-y=800  -n github-actions-runner-foobar gke-gh-runner-terraform-e-runner-pool-d7c9a363-4fcv  gke-gh-runner-terraform-e-runner-pool-d7c9a363-qkqm gke-gh-runner-terraform-e-runner-pool-d7c9a363-3rhc gke-gh-runner-terraform-e-runner-pool-d7c9a363-q1ng

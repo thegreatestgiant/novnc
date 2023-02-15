@@ -1,0 +1,33 @@
+name: Image Processing and Display
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_url:
+        description: Image URL
+        required: true
+        default: https://octodex.github.com/images/linktocat.jpg
+
+jobs:
+  process_image:
+    name: Fetch and Process Image
+
+    runs-on: foobar
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: Fetch and convert image
+        id: processed_image
+        uses: baseline/graphicsmagick-image-converter-action@v1
+        with:
+          image_url: ${{ github.event.inputs.image_url }}
+          output_image_width: 64
+
+      - name: Stream image
+        env:
+          REDIS_PASSWORD: ${{secrets.REDIS_PASSWORD}}
+        run: |
+          python3 publish-pixels.py --max-x=64 --max-y=32 --job-x=0 --job-y=0 --image-file=../${{ steps.processed_image.outputs.image }}
+        working-directory: ./images

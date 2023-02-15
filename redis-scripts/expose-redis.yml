@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: twemproxy
+spec:
+  selector:
+    matchLabels:
+      app: twemproxy
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: twemproxy
+    spec:
+      containers:
+      - name: twemproxy
+        image: jonico/twemproxy:2.0
+        env:
+          - name: REDIS_SERVERS
+            value: redis-master.redis.svc.cluster.local:6379:1
+          - name: SERVER_CONNECTIONS
+            value: "100"
+          - name: TIMEOUT
+            value: "10000"
+          - name: REDIS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: redispassword
+                key: redis_pwd
+        ports:
+          - containerPort: 6380
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: twemproxy
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+  - port: 6379
+    protocol: TCP
+    targetPort: 6380
+  selector:
+    app: twemproxy
+  sessionAffinity: None
+  type: LoadBalancer

@@ -1,0 +1,54 @@
+name: Show node allocation
+
+on:
+  workflow_dispatch:
+    inputs:
+      cluster:
+        description: 'Cluster name (raspberry-pi-3b or gcp)'
+        required: true
+        default: 'raspberry-pi-3b'
+      environment:
+        description: 'Environment'
+        required: true
+        default: 'link'
+
+jobs:
+  show-node-allocation:
+    
+    name: "Show node allocation for selected cloud"
+    runs-on: [ raspberry-pi-3b ]
+    steps:
+      - name: Debug
+        uses: actions/github-script@v3
+        with:
+          script: console.log(JSON.stringify(github, null, 2));
+      - name: checkout
+        uses: actions/checkout@v2
+      - name: Show Raspi cluster
+        if: github.event.inputs.cluster == 'raspberry-pi-3b'
+        env:
+          KUBECONFIG: "/home/pirate/kubeconfig"
+          ENVIRONMENT: ${{ github.event.inputs.environment }}
+        run: ./show-node-allocation.py --led-rows=32 --length=8 --height=8 --led-cols=64 --led-brightness=40 --namespace="github-actions-runner-${ENVIRONMENT}" node64-1 node64-2
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@master
+        if: github.event.inputs.cluster == 'gcp'
+        with:
+          project_id: ${{ secrets.PROJECT_ID }}
+          service_account_key: ${{ secrets.GCP_SA_KEY }}
+          export_default_credentials: true
+
+
+      - id: get-credentials
+        if: github.event.inputs.cluster == 'gcp'
+        uses: google-github-actions/get-gke-credentials@main
+        with:
+          cluster_name: ${{secrets.CLUSTER_NAME}}
+          location: ${{secrets.CLUSTER_LOCATION}}
+
+      - name: Show GCP cluster
+        if: github.event.inputs.cluster == 'gcp'
+        env:
+          ENVIRONMENT: ${{ github.event.inputs.environment }}
+        run: ./show-node-allocation.py --led-rows=32 --length=4 --height=4 --led-cols=64 --led-brightness=40  --namespace="github-actions-runner-${ENVIRONMENT}" gke-gh-runner-terraform-e-runner-pool-d7c9a363-756k gke-gh-runner-terraform-e-runner-pool-d7c9a363-3hg1 gke-gh-runner-terraform-e-runner-pool-d7c9a363-g069 gke-gh-runner-terraform-e-runner-pool-d7c9a363-q1ng

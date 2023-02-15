@@ -1,0 +1,85 @@
+name: Visualize matrix build GUI
+
+on:
+  workflow_dispatch:
+    inputs:
+      image_url:
+        description: Image URL
+        required: true
+        default: matrix-finished.png
+      reset_image_url:
+        description: Reset Image URL
+        required: true
+        default: matrix-start.png
+      duration:
+        description: 'Number of job duration in ms'
+        required: true
+        default: '1000'
+      x:
+        description: 'Number of jobs on x-Axis'
+        required: true
+        default: '8'
+      y:
+        description: 'Number of jobs on y-Axis'
+        required: true
+        default: '6'
+      environment:
+        description: 'environment'
+        required: true
+        default: 'foobar'
+      redis_host:
+        description: 'REDIS HOST'
+        required: true
+        default: '35.245.139.140'
+
+jobs:
+  reset-led:
+    name: "Reset Matrix"
+    runs-on: ${{ github.event.inputs.environment }}
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: Reset image
+        env:
+          REDIS_PASSWORD: ${{secrets.REDIS_PASSWORD}}
+          REDIS_HOST: ${{ github.event.inputs.redis_host }}
+        run: |
+          python3 publish-pixels.py --max-x=800 --max-y=600 --job-x=0 --job-y=0 --image-file='${{ github.event.inputs.reset_image_url }}' --redis-host="$REDIS_HOST" --environment='${{github.event.inputs.environment}}'
+        working-directory: ./images
+  generate-matrix:
+    name: "Generate matrix job specs"
+    outputs:
+      x: ${{ steps.generate-matrix.outputs.x }}
+      y: ${{ steps.generate-matrix.outputs.y }}
+    runs-on: ${{ github.event.inputs.environment }}
+    steps:
+      - name: generate-matrix
+        id: generate-matrix
+        run: |
+          echo "::set-output name=x::[`seq -s , ${{ github.event.inputs.x }}`]"
+          echo "::set-output name=y::[`seq -s , ${{ github.event.inputs.y }}`]"
+
+  matrix:
+    name: "Matrix job"
+    runs-on: ${{ github.event.inputs.environment }}
+    needs: [generate-matrix]
+
+    strategy:
+      fail-fast: false
+      max-parallel: 50
+      matrix:
+          x: ${{ fromJson(needs.generate-matrix.outputs.x) }}
+          y: ${{ fromJson(needs.generate-matrix.outputs.y) }}
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v2
+
+      - name: Perform job
+        env:
+          REDIS_PASSWORD: ${{secrets.REDIS_PASSWORD}}
+          REDIS_HOST: ${{ github.event.inputs.redis_host }}
+        run: |
+          python3 visualize-matrix-build.py --max-x=800 --max-y=600 --job-x='${{matrix.x}}' --job-y='${{matrix.y}}' --max-job-x='${{github.event.inputs.x}}' --max-job-y='${{github.event.inputs.y}}' --duration='${{github.event.inputs.duration}}' --environment='${{github.event.inputs.environment}}' --image-file='${{ github.event.inputs.image_url }}' --redis-host="$REDIS_HOST"
+        working-directory: ./images

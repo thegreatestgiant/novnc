@@ -1,0 +1,57 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    environment: ese
+  name: github-actions-runner-ese
+---
+apiVersion: actions.summerwind.dev/v1alpha1
+kind: HorizontalRunnerAutoscaler
+metadata:
+  labels:
+    environment: ese
+  name: actions-runner-autoscaler-ese
+  namespace: github-actions-runner-ese
+spec:
+  maxReplicas: 16
+  metrics:
+  - scaleDownFactor: "0.5"
+    scaleDownThreshold: "0.2"
+    scaleUpFactor: "2"
+    scaleUpThreshold: "0.5"
+    type: PercentageRunnersBusy
+  minReplicas: 4
+  scaleDownDelaySecondsAfterScaleOut: 300
+  scaleTargetRef:
+    name: actions-runner-deployment-ese
+---
+apiVersion: actions.summerwind.dev/v1alpha1
+kind: RunnerDeployment
+metadata:
+  labels:
+    environment: ese
+  name: actions-runner-deployment-ese
+  namespace: github-actions-runner-ese
+spec:
+  template:
+    spec:
+      dockerEnabled: false
+      group: raspberry
+      image: ghcr.io/jonico/actions-runner:ese
+      labels:
+      - ese
+      - kubernetes
+      - custom-runner
+      repository: jonico/visualize-actions-matrix-builds-on-k8s
+      resources:
+        limits:
+          cpu: 1000m
+          memory: 1Gi
+        requests:
+          cpu: 50m
+          memory: 128Mi
+      tolerations:
+      - effect: NoExecute
+        key: node.kubernetes.io/unreachable
+        operator: Exists
+        tolerationSeconds: 10

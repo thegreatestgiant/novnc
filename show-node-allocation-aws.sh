@@ -1,0 +1,1 @@
+ python3 show-node-allocation-gui.py --length=8 --height=8 --max-x=48 --max-y=80   --window-x=768 --window-y=1200  -n github-actions-runner-octodemo ip-10-0-1-124.us-east-2.compute.internal ip-10-0-1-81.us-east-2.compute.internal ip-10-0-3-141.us-east-2.compute.internal
