@@ -12,3 +12,7 @@
 vscode
 ```
 7. Enjoy
+
+<div align="center">
+<em href="https://github.com/jonico/visualize-actions-matrix-builds-on-k8s">Made by jonico</em>
+</div>
