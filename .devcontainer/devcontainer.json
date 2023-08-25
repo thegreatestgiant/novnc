@@ -10,11 +10,11 @@
 			"VARIANT": "3",
 			// Options
 			"NODE_VERSION": "lts/*"
-		},
+		}
 	},
 
 	// Set *default* container specific settings.json values on container create.
-	"settings": { 
+	"customizations/vscode/settings": { 
 		"python.pythonPath": "/usr/local/bin/python",
 		"python.languageServer": "Pylance",
 		"python.linting.enabled": true,
@@ -31,7 +31,7 @@
 	},
 
 	// Add the IDs of extensions you want installed when the container is created.
-	"extensions": [
+	"customizations/vscode/extensions": [
 		"ms-python.python",
 		"ms-python.vscode-pylance",
 		"ms-azuretools.vscode-docker"
@@ -46,7 +46,7 @@
 	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
 	"remoteUser": "vscode",
 	"runArgs": ["--init", "--security-opt", "seccomp=unconfined", "--privileged"],
-	"forward": [6080, 5901],
+	"forwardPorts": [6080, 5901],
 	"overrideCommand": false,
 	"mounts": ["source=dind-var-lib-docker,target=/var/lib/docker,type=volume"]
 }
