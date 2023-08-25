@@ -7,14 +7,14 @@
 		"context": "..",
 		"args": { 
 			// Update 'VARIANT' to pick a Python version: 3, 3.6, 3.7, 3.8, 3.9
-			"VARIANT": "3",
+			"VARIANT": "3.9",
 			// Options
 			"NODE_VERSION": "lts/*"
 		}
 	},
 
 	// Set *default* container specific settings.json values on container create.
-	"customizations/vscode/settings": { 
+	"settings": { 
 		"python.pythonPath": "/usr/local/bin/python",
 		"python.languageServer": "Pylance",
 		"python.linting.enabled": true,
@@ -31,14 +31,14 @@
 	},
 
 	// Add the IDs of extensions you want installed when the container is created.
-	"customizations/vscode/extensions": [
+	"extensions": [
 		"ms-python.python",
 		"ms-python.vscode-pylance",
 		"ms-azuretools.vscode-docker"
 	],
 
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
+	// "forwardPorts": [6080, 5901],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	// "postCreateCommand": "pip3 install --user -r requirements.txt",
