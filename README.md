@@ -1,3 +1,8 @@
+# EDIT
+
+Sorry, at some point github updated how things worked with their devcontainers and this project got depricated, however someone was nice enough to figure out a fix.
+View it [here](https://github.com/thegreatestgiant/novnc/issues/19#issuecomment-3237779522)
+
 # novnc
 
 ### How To Get
